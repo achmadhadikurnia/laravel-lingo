@@ -3,31 +3,6 @@
 use Kanekescom\Lingo\Lingo;
 
 describe('Lingo static methods', function () {
-    beforeEach(function () {
-        $this->tempDir = sys_get_temp_dir().'/lingo-test-'.uniqid();
-        mkdir($this->tempDir, 0777, true);
-    });
-
-    afterEach(function () {
-        // Clean up temp directory
-        if (is_dir($this->tempDir)) {
-            $files = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($this->tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
-            );
-
-            foreach ($files as $file) {
-                if ($file->isDir()) {
-                    rmdir($file->getRealPath());
-                } else {
-                    unlink($file->getRealPath());
-                }
-            }
-
-            rmdir($this->tempDir);
-        }
-    });
-
     it('can find duplicates in JSON content', function () {
         $json = '{"key1": "value1", "key2": "value2", "key1": "duplicate"}';
 
@@ -204,7 +179,10 @@ describe('Lingo static methods', function () {
     });
 
     it('can save and load translation files', function () {
-        $filePath = $this->tempDir.'/test.json';
+        $tempDir = sys_get_temp_dir() . '/lingo-test-' . uniqid();
+        @mkdir($tempDir, 0777, true);
+
+        $filePath = $tempDir . '/test.json';
         $translations = ['Hello' => 'Halo', 'World' => 'Dunia'];
 
         $saved = Lingo::save($filePath, $translations);
@@ -214,6 +192,10 @@ describe('Lingo static methods', function () {
         $loaded = Lingo::load($filePath);
         expect($loaded)->not->toBeNull();
         expect($loaded['translations'])->toBe(Lingo::sortKeys($translations));
+
+        // Cleanup
+        @unlink($filePath);
+        @rmdir($tempDir);
     });
 
     it('returns null when loading non-existent file', function () {
@@ -223,13 +205,20 @@ describe('Lingo static methods', function () {
     });
 
     it('can scan directory for translation keys', function () {
+        $tempDir = sys_get_temp_dir() . '/lingo-scan-test-' . uniqid();
+        @mkdir($tempDir, 0777, true);
+
         // Create a test PHP file
         $phpContent = "<?php echo __('Test Key'); echo trans('Another Key');";
-        file_put_contents($this->tempDir.'/test.php', $phpContent);
+        file_put_contents($tempDir . '/test.php', $phpContent);
 
-        $keys = Lingo::scanDirectory($this->tempDir);
+        $keys = Lingo::scanDirectory($tempDir);
 
         expect($keys)->toContain('Test Key');
         expect($keys)->toContain('Another Key');
+
+        // Cleanup
+        @unlink($tempDir . '/test.php');
+        @rmdir($tempDir);
     });
 });

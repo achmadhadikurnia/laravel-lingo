@@ -4,30 +4,6 @@ use Kanekescom\Lingo\Lingo;
 use Kanekescom\Lingo\LingoBuilder;
 
 describe('LingoBuilder chainable methods', function () {
-    beforeEach(function () {
-        $this->tempDir = sys_get_temp_dir().'/lingo-builder-test-'.uniqid();
-        mkdir($this->tempDir, 0777, true);
-    });
-
-    afterEach(function () {
-        if (is_dir($this->tempDir)) {
-            $files = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($this->tempDir, RecursiveDirectoryIterator::SKIP_DOTS),
-                RecursiveIteratorIterator::CHILD_FIRST
-            );
-
-            foreach ($files as $file) {
-                if ($file->isDir()) {
-                    rmdir($file->getRealPath());
-                } else {
-                    unlink($file->getRealPath());
-                }
-            }
-
-            rmdir($this->tempDir);
-        }
-    });
-
     it('can be created via Lingo::make', function () {
         $builder = Lingo::make(['Hello' => 'Halo']);
 
@@ -209,7 +185,10 @@ describe('LingoBuilder chainable methods', function () {
     });
 
     it('can save to file', function () {
-        $filePath = $this->tempDir.'/translations.json';
+        $tempDir = sys_get_temp_dir() . '/lingo-test-' . uniqid();
+        @mkdir($tempDir, 0777, true);
+
+        $filePath = $tempDir . '/translations.json';
         $builder = LingoBuilder::make(['Hello' => 'Halo', 'World' => 'Dunia']);
 
         $result = $builder->save($filePath);
@@ -220,12 +199,16 @@ describe('LingoBuilder chainable methods', function () {
         $content = json_decode(file_get_contents($filePath), true);
         expect($content)->toHaveKey('Hello');
         expect($content)->toHaveKey('World');
+
+        // Cleanup
+        @unlink($filePath);
+        @rmdir($tempDir);
     });
 
     it('throws exception when saving without path and locale', function () {
         $builder = LingoBuilder::make(['Hello' => 'Halo']);
 
-        expect(fn () => $builder->save())->toThrow(\InvalidArgumentException::class);
+        expect(fn() => $builder->save())->toThrow(\InvalidArgumentException::class);
     });
 
     it('can chain multiple operations', function () {
