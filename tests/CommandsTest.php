@@ -49,6 +49,29 @@ describe('LingoCheckCommand', function () {
         $this->artisan('lingo:check', ['locale' => '/non/existent/file.json'])
             ->assertFailed();
     });
+
+    it('can fix duplicates with --fix option', function () {
+        $tempDir = createTempTestDir();
+        $filePath = $tempDir.'/test.json';
+        // Create file with duplicate keys (simulated - PHP will keep last)
+        file_put_contents($filePath, '{"key1": "value1", "key2": "value2", "key1": "duplicate"}');
+
+        $this->artisan('lingo:check', ['locale' => $filePath, '--fix' => true])
+            ->assertSuccessful();
+
+        cleanupTempDir($tempDir);
+    });
+
+    it('reports error for invalid JSON file', function () {
+        $tempDir = createTempTestDir();
+        $filePath = $tempDir.'/invalid.json';
+        file_put_contents($filePath, 'not valid json {{{');
+
+        $this->artisan('lingo:check', ['locale' => $filePath])
+            ->assertFailed();
+
+        cleanupTempDir($tempDir);
+    });
 });
 
 describe('LingoStatsCommand', function () {

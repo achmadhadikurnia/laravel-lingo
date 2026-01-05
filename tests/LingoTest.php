@@ -222,4 +222,34 @@ describe('Lingo static methods', function () {
         @unlink($tempDir.'/test.php');
         @rmdir($tempDir);
     });
+
+    it('can check if has untranslated items', function () {
+        $hasUntranslated = Lingo::hasUntranslated(['Hello' => 'Hello']);
+        $noUntranslated = Lingo::hasUntranslated(['Hello' => 'Halo']);
+
+        expect($hasUntranslated)->toBeTrue();
+        expect($noUntranslated)->toBeFalse();
+    });
+
+    it('can check if has missing keys', function () {
+        $translations = ['Hello' => 'Halo'];
+        $keys = ['Hello', 'World'];
+
+        expect(Lingo::hasMissing($translations, $keys))->toBeTrue();
+        expect(Lingo::hasMissing($translations, ['Hello']))->toBeFalse();
+    });
+
+    it('can check if has unused keys', function () {
+        $translations = ['Hello' => 'Halo', 'Unused' => 'Test'];
+        $usedKeys = ['Hello'];
+
+        expect(Lingo::hasUnused($translations, $usedKeys))->toBeTrue();
+        expect(Lingo::hasUnused(['Hello' => 'Halo'], ['Hello']))->toBeFalse();
+    });
+
+    it('returns empty array for non-existent scan directory', function () {
+        $keys = Lingo::scanDirectory('/non/existent/directory');
+
+        expect($keys)->toBe([]);
+    });
 });

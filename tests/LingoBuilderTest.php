@@ -231,4 +231,21 @@ describe('LingoBuilder chainable methods', function () {
         expect($keys[0])->toBe('a');
         expect($result)->toHaveKey('new');
     });
+
+    it('can create empty builder', function () {
+        $builder = LingoBuilder::make();
+
+        expect($builder->get())->toBe([]);
+        expect($builder->isEmpty())->toBeTrue();
+        expect($builder->count())->toBe(0);
+    });
+
+    it('can handle empty translations in stats', function () {
+        $builder = LingoBuilder::make([]);
+
+        $stats = $builder->stats();
+
+        expect($stats['total'])->toBe(0);
+        expect($stats['percentage'])->toBe(0);
+    });
 });
