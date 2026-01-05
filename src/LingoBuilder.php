@@ -25,8 +25,6 @@ class LingoBuilder
 
     /**
      * The locale code for auto-save functionality.
-     *
-     * @var string|null
      */
     protected ?string $locale = null;
 
@@ -34,7 +32,6 @@ class LingoBuilder
      * Create a new LingoBuilder instance.
      *
      * @param  array<string, string>  $translations
-     * @param  string|null  $locale
      */
     public function __construct(array $translations = [], ?string $locale = null)
     {
@@ -211,7 +208,7 @@ class LingoBuilder
     {
         $this->translations = array_filter(
             $this->translations,
-            fn($value) => $value !== ''
+            fn ($value) => $value !== ''
         );
 
         return $this;
@@ -244,7 +241,6 @@ class LingoBuilder
     /**
      * Apply a custom callback to the translations.
      *
-     * @param  callable  $callback
      * @return $this
      */
     public function tap(callable $callback): static
@@ -287,9 +283,9 @@ class LingoBuilder
      *
      * @param  string|null  $filePath  Path to save JSON file (optional if locale is set)
      * @param  bool  $sort  Whether to sort keys before saving
-     * @return bool  True if saved successfully
+     * @return bool True if saved successfully
      *
-     * @throws \InvalidArgumentException  If no path provided and locale is not set
+     * @throws \InvalidArgumentException If no path provided and locale is not set
      */
     public function save(?string $filePath = null, bool $sort = true): bool
     {
@@ -307,7 +303,6 @@ class LingoBuilder
      * Export to formatted JSON string.
      *
      * @param  bool  $sortKeys  Whether to sort keys before export
-     * @return string
      */
     public function toJson(bool $sortKeys = true): string
     {
@@ -346,8 +341,6 @@ class LingoBuilder
 
     /**
      * Get count of translations.
-     *
-     * @return int
      */
     public function count(): int
     {
@@ -356,8 +349,6 @@ class LingoBuilder
 
     /**
      * Check if translations is empty.
-     *
-     * @return bool
      */
     public function isEmpty(): bool
     {
@@ -366,8 +357,6 @@ class LingoBuilder
 
     /**
      * Check if translations is not empty.
-     *
-     * @return bool
      */
     public function isNotEmpty(): bool
     {

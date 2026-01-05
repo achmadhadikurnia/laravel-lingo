@@ -5,7 +5,7 @@ use Kanekescom\Lingo\LingoBuilder;
 
 describe('LingoBuilder chainable methods', function () {
     beforeEach(function () {
-        $this->tempDir = sys_get_temp_dir() . '/lingo-builder-test-' . uniqid();
+        $this->tempDir = sys_get_temp_dir().'/lingo-builder-test-'.uniqid();
         mkdir($this->tempDir, 0777, true);
     });
 
@@ -209,7 +209,7 @@ describe('LingoBuilder chainable methods', function () {
     });
 
     it('can save to file', function () {
-        $filePath = $this->tempDir . '/translations.json';
+        $filePath = $this->tempDir.'/translations.json';
         $builder = LingoBuilder::make(['Hello' => 'Halo', 'World' => 'Dunia']);
 
         $result = $builder->save($filePath);
@@ -225,7 +225,7 @@ describe('LingoBuilder chainable methods', function () {
     it('throws exception when saving without path and locale', function () {
         $builder = LingoBuilder::make(['Hello' => 'Halo']);
 
-        expect(fn() => $builder->save())->toThrow(\InvalidArgumentException::class);
+        expect(fn () => $builder->save())->toThrow(\InvalidArgumentException::class);
     });
 
     it('can chain multiple operations', function () {

@@ -4,7 +4,7 @@ use Kanekescom\Lingo\Lingo;
 
 describe('Lingo static methods', function () {
     beforeEach(function () {
-        $this->tempDir = sys_get_temp_dir() . '/lingo-test-' . uniqid();
+        $this->tempDir = sys_get_temp_dir().'/lingo-test-'.uniqid();
         mkdir($this->tempDir, 0777, true);
     });
 
@@ -204,7 +204,7 @@ describe('Lingo static methods', function () {
     });
 
     it('can save and load translation files', function () {
-        $filePath = $this->tempDir . '/test.json';
+        $filePath = $this->tempDir.'/test.json';
         $translations = ['Hello' => 'Halo', 'World' => 'Dunia'];
 
         $saved = Lingo::save($filePath, $translations);
@@ -225,7 +225,7 @@ describe('Lingo static methods', function () {
     it('can scan directory for translation keys', function () {
         // Create a test PHP file
         $phpContent = "<?php echo __('Test Key'); echo trans('Another Key');";
-        file_put_contents($this->tempDir . '/test.php', $phpContent);
+        file_put_contents($this->tempDir.'/test.php', $phpContent);
 
         $keys = Lingo::scanDirectory($this->tempDir);
 

@@ -52,7 +52,7 @@ class LingoCommand extends Command
         $translations = json_decode($jsonContent, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->error('Invalid JSON file: ' . json_last_error_msg());
+            $this->error('Invalid JSON file: '.json_last_error_msg());
 
             return self::FAILURE;
         }
@@ -184,7 +184,7 @@ class LingoCommand extends Command
             // Show first 10 only
             $shown = array_slice($untranslated, 0, 10, true);
             foreach ($shown as $key => $value) {
-                $shortKey = strlen($key) > 60 ? substr($key, 0, 60) . '...' : $key;
+                $shortKey = strlen($key) > 60 ? substr($key, 0, 60).'...' : $key;
                 $this->line("  <fg=yellow>•</> {$shortKey}");
             }
 
@@ -244,8 +244,8 @@ class LingoCommand extends Command
             $this->line('<fg=green>Sample translated items:</>');
             $sample = array_slice($translated, 0, 5, true);
             foreach ($sample as $key => $value) {
-                $shortKey = strlen($key) > 30 ? substr($key, 0, 30) . '...' : $key;
-                $shortVal = strlen($value) > 30 ? substr($value, 0, 30) . '...' : $value;
+                $shortKey = strlen($key) > 30 ? substr($key, 0, 30).'...' : $key;
+                $shortVal = strlen($value) > 30 ? substr($value, 0, 30).'...' : $value;
                 $this->line("  <fg=gray>{$shortKey}</> → <fg=green>{$shortVal}</>");
             }
             $this->newLine();
@@ -256,7 +256,7 @@ class LingoCommand extends Command
             $this->line('<fg=yellow>Sample untranslated items:</>');
             $sample = array_slice($untranslated, 0, 5, true);
             foreach ($sample as $key => $value) {
-                $shortKey = strlen($key) > 50 ? substr($key, 0, 50) . '...' : $key;
+                $shortKey = strlen($key) > 50 ? substr($key, 0, 50).'...' : $key;
                 $this->line("  <fg=yellow>{$shortKey}</>");
             }
             $this->newLine();
@@ -292,8 +292,8 @@ class LingoCommand extends Command
 
         $this->components->twoColumnDetail('Keys found in source', (string) count($foundKeys));
         $this->components->twoColumnDetail('Keys in translation file', (string) count($translations));
-        $this->components->twoColumnDetail('Missing keys', '<fg=yellow>' . count($missing) . '</>');
-        $this->components->twoColumnDetail('Unused keys', '<fg=cyan>' . count($unused) . '</>');
+        $this->components->twoColumnDetail('Missing keys', '<fg=yellow>'.count($missing).'</>');
+        $this->components->twoColumnDetail('Unused keys', '<fg=cyan>'.count($unused).'</>');
         $this->newLine();
 
         if (empty($missing) && empty($unused)) {
@@ -308,7 +308,7 @@ class LingoCommand extends Command
             $this->components->warn('⚠ Missing translation keys:');
             $shown = array_slice($missing, 0, 15);
             foreach ($shown as $key) {
-                $shortKey = strlen($key) > 60 ? substr($key, 0, 60) . '...' : $key;
+                $shortKey = strlen($key) > 60 ? substr($key, 0, 60).'...' : $key;
                 $this->line("  <fg=yellow>•</> {$shortKey}");
             }
 
@@ -323,7 +323,7 @@ class LingoCommand extends Command
                 $translations = Lingo::addMissing($translations, $foundKeys);
                 Lingo::save($file, $translations, true);
 
-                $this->components->info('✓ Added ' . count($missing) . ' missing key(s) to translation file');
+                $this->components->info('✓ Added '.count($missing).' missing key(s) to translation file');
                 $this->newLine();
             } else {
                 $this->line('<fg=gray>Tip: Use --add-missing to add missing keys</>');
@@ -336,7 +336,7 @@ class LingoCommand extends Command
             $this->components->warn('⚠ Unused translation keys (not in source):');
             $shown = array_slice($unused, 0, 15);
             foreach ($shown as $key) {
-                $shortKey = strlen($key) > 60 ? substr($key, 0, 60) . '...' : $key;
+                $shortKey = strlen($key) > 60 ? substr($key, 0, 60).'...' : $key;
                 $this->line("  <fg=cyan>•</> {$shortKey}");
             }
 
@@ -351,7 +351,7 @@ class LingoCommand extends Command
                 $translations = Lingo::removeUnused($translations, $foundKeys);
                 Lingo::save($file, $translations, true);
 
-                $this->components->info('✓ Removed ' . count($unused) . ' unused key(s) from translation file');
+                $this->components->info('✓ Removed '.count($unused).' unused key(s) from translation file');
                 $this->newLine();
             } else {
                 $this->line('<fg=gray>Tip: Use --remove-unused to remove unused keys</>');

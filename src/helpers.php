@@ -21,7 +21,6 @@ if (! function_exists('lingo')) {
      * interface for working with translation arrays.
      *
      * @param  array<string, string>  $translations
-     * @return LingoBuilder
      *
      * @example
      * lingo()->setLocale('id')->syncWith()->save();

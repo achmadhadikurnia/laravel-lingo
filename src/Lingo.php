@@ -14,7 +14,6 @@ class Lingo
      * Create a new LingoBuilder instance for chainable operations.
      *
      * @param  array<string, string>  $translations
-     * @return LingoBuilder
      *
      * @example
      * Lingo::make($translations)
@@ -35,7 +34,7 @@ class Lingo
      * before they are merged by PHP.
      *
      * @param  string  $jsonContent  Raw JSON file content
-     * @return array<string, int>  Array of duplicate keys with their occurrence count
+     * @return array<string, int> Array of duplicate keys with their occurrence count
      */
     public static function duplicates(string $jsonContent): array
     {
@@ -44,14 +43,13 @@ class Lingo
         $keys = $matches[1];
         $counts = array_count_values($keys);
 
-        return array_filter($counts, fn($count) => $count > 1);
+        return array_filter($counts, fn ($count) => $count > 1);
     }
 
     /**
      * Check if JSON content has duplicate keys.
      *
      * @param  string  $jsonContent  Raw JSON file content
-     * @return bool
      */
     public static function hasDuplicates(string $jsonContent): bool
     {
@@ -63,7 +61,7 @@ class Lingo
      * PHP automatically keeps the last occurrence when parsing.
      *
      * @param  string  $jsonContent  Raw JSON file content
-     * @return array<string, string>  Clean translation array without duplicates
+     * @return array<string, string> Clean translation array without duplicates
      */
     public static function removeDuplicates(string $jsonContent): array
     {
@@ -101,7 +99,7 @@ class Lingo
      * @param  string  $filePath  Path to save JSON file
      * @param  array<string, string>  $translations
      * @param  bool  $sort  Whether to sort keys before saving
-     * @return bool  True if saved successfully
+     * @return bool True if saved successfully
      */
     public static function save(string $filePath, array $translations, bool $sort = true): bool
     {
@@ -132,18 +130,17 @@ class Lingo
      * Find untranslated items where key equals value.
      *
      * @param  array<string, string>  $translations
-     * @return array<string, string>  Array of untranslated items
+     * @return array<string, string> Array of untranslated items
      */
     public static function untranslated(array $translations): array
     {
-        return array_filter($translations, fn($value, $key) => $key === $value, ARRAY_FILTER_USE_BOTH);
+        return array_filter($translations, fn ($value, $key) => $key === $value, ARRAY_FILTER_USE_BOTH);
     }
 
     /**
      * Check if translation array has any untranslated items.
      *
      * @param  array<string, string>  $translations
-     * @return bool
      */
     public static function hasUntranslated(array $translations): bool
     {
@@ -154,11 +151,11 @@ class Lingo
      * Find translated items where key differs from value.
      *
      * @param  array<string, string>  $translations
-     * @return array<string, string>  Array of translated items
+     * @return array<string, string> Array of translated items
      */
     public static function translated(array $translations): array
     {
-        return array_filter($translations, fn($value, $key) => $key !== $value, ARRAY_FILTER_USE_BOTH);
+        return array_filter($translations, fn ($value, $key) => $key !== $value, ARRAY_FILTER_USE_BOTH);
     }
 
     /**
@@ -192,7 +189,7 @@ class Lingo
     public static function clean(array $translations): array
     {
         // Remove empty values
-        $cleaned = array_filter($translations, fn($value) => $value !== '');
+        $cleaned = array_filter($translations, fn ($value) => $value !== '');
 
         // Sort keys
         return static::sortKeys($cleaned);
@@ -203,7 +200,7 @@ class Lingo
      *
      * @param  array<string, string>  $translations
      * @param  bool  $sortKeys  Whether to sort keys before export
-     * @return string  Formatted JSON string
+     * @return string Formatted JSON string
      */
     public static function toJson(array $translations, bool $sortKeys = true): string
     {
@@ -221,7 +218,7 @@ class Lingo
      *
      * @param  string  $directory  Directory to scan
      * @param  array<string>  $extensions  File extensions to scan (default: ['php', 'blade.php'])
-     * @return array<string>  Array of unique translation keys found
+     * @return array<string> Array of unique translation keys found
      */
     public static function scanDirectory(string $directory, array $extensions = ['php']): array
     {
@@ -243,7 +240,7 @@ class Lingo
             $matchesExtension = false;
 
             foreach ($extensions as $ext) {
-                if (str_ends_with($filename, '.' . $ext)) {
+                if (str_ends_with($filename, '.'.$ext)) {
                     $matchesExtension = true;
                     break;
                 }
@@ -271,7 +268,7 @@ class Lingo
      * - Lang::get('text') or Lang::get("text")
      *
      * @param  string  $content  File content
-     * @return array<string>  Array of translation keys found
+     * @return array<string> Array of translation keys found
      */
     public static function extractKeys(string $content): array
     {
@@ -303,11 +300,11 @@ class Lingo
      *
      * @param  array<string, string>  $translations  Existing translations
      * @param  array<string>  $keys  Keys found in source files
-     * @return array<string>  Array of missing keys
+     * @return array<string> Array of missing keys
      */
     public static function missing(array $translations, array $keys): array
     {
-        return array_values(array_filter($keys, fn($key) => ! array_key_exists($key, $translations)));
+        return array_values(array_filter($keys, fn ($key) => ! array_key_exists($key, $translations)));
     }
 
     /**
@@ -315,7 +312,6 @@ class Lingo
      *
      * @param  array<string, string>  $translations  Existing translations
      * @param  array<string>  $keys  Keys found in source files
-     * @return bool
      */
     public static function hasMissing(array $translations, array $keys): bool
     {
@@ -329,7 +325,7 @@ class Lingo
      *
      * @param  array<string, string>  $translations  Existing translations
      * @param  array<string>  $keys  Keys to add if missing
-     * @return array<string, string>  Updated translations array
+     * @return array<string, string> Updated translations array
      */
     public static function addMissing(array $translations, array $keys): array
     {
@@ -349,7 +345,7 @@ class Lingo
      *
      * @param  array<string, string>  $translations  Existing translations
      * @param  array<string>  $usedKeys  Keys found in source files
-     * @return array<string>  Array of unused keys
+     * @return array<string> Array of unused keys
      */
     public static function unused(array $translations, array $usedKeys): array
     {
@@ -358,7 +354,7 @@ class Lingo
 
         return array_values(array_filter(
             $translationKeys,
-            fn($key) => ! isset($usedKeysFlipped[$key])
+            fn ($key) => ! isset($usedKeysFlipped[$key])
         ));
     }
 
@@ -367,7 +363,6 @@ class Lingo
      *
      * @param  array<string, string>  $translations  Existing translations
      * @param  array<string>  $usedKeys  Keys found in source files
-     * @return bool
      */
     public static function hasUnused(array $translations, array $usedKeys): bool
     {
@@ -379,7 +374,7 @@ class Lingo
      *
      * @param  array<string, string>  $translations  Existing translations
      * @param  array<string>  $usedKeys  Keys found in source files
-     * @return array<string, string>  Cleaned translations array
+     * @return array<string, string> Cleaned translations array
      */
     public static function removeUnused(array $translations, array $usedKeys): array
     {
@@ -387,7 +382,7 @@ class Lingo
 
         return array_filter(
             $translations,
-            fn($value, $key) => isset($usedKeysFlipped[$key]),
+            fn ($value, $key) => isset($usedKeysFlipped[$key]),
             ARRAY_FILTER_USE_BOTH
         );
     }
