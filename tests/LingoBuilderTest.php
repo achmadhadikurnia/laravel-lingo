@@ -66,12 +66,12 @@ describe('LingoBuilder chainable methods', function () {
         $builder = LingoBuilder::make([
             'valid' => 'value',
             'empty' => '',
-            'null' => null,
+            'another' => 'test',
         ]);
 
         $result = $builder->clean()->get();
 
-        expect($result)->toHaveCount(1);
+        expect($result)->toHaveCount(2);
         expect($result)->toHaveKey('valid');
     });
 
@@ -102,12 +102,12 @@ describe('LingoBuilder chainable methods', function () {
         $builder = LingoBuilder::make([
             'valid' => 'value',
             'empty' => '',
-            'null' => null,
+            'another' => 'test',
         ]);
 
         $result = $builder->removeEmpty()->get();
 
-        expect($result)->toHaveCount(1);
+        expect($result)->toHaveCount(2);
     });
 
     it('can filter to only untranslated', function () {

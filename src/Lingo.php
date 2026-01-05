@@ -41,7 +41,7 @@ class Lingo
     {
         preg_match_all('/"([^"]+)"\s*:/', $jsonContent, $matches);
 
-        $keys = $matches[1] ?? [];
+        $keys = $matches[1];
         $counts = array_count_values($keys);
 
         return array_filter($counts, fn($count) => $count > 1);
@@ -192,7 +192,7 @@ class Lingo
     public static function clean(array $translations): array
     {
         // Remove empty values
-        $cleaned = array_filter($translations, fn($value) => $value !== '' && $value !== null);
+        $cleaned = array_filter($translations, fn($value) => $value !== '');
 
         // Sort keys
         return static::sortKeys($cleaned);

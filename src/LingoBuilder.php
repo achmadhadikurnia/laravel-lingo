@@ -48,9 +48,9 @@ class LingoBuilder
      * @param  array<string, string>  $translations
      * @return static
      */
-    public static function make(array $translations = []): static
+    public static function make(array $translations = []): self
     {
-        return new static($translations);
+        return new self($translations);
     }
 
     /**
@@ -211,7 +211,7 @@ class LingoBuilder
     {
         $this->translations = array_filter(
             $this->translations,
-            fn($value) => $value !== '' && $value !== null
+            fn($value) => $value !== ''
         );
 
         return $this;

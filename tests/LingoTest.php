@@ -124,12 +124,12 @@ describe('Lingo static methods', function () {
             'z' => 'last',
             'a' => 'first',
             'empty' => '',
-            'null' => null,
+            'another' => 'value',
         ];
 
         $cleaned = Lingo::clean($translations);
 
-        expect($cleaned)->toHaveCount(2);
+        expect($cleaned)->toHaveCount(3);
         expect(array_key_first($cleaned))->toBe('a'); // Sorted
     });
 
