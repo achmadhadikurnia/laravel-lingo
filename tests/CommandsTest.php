@@ -1,5 +1,7 @@
 <?php
 
+uses()->group('commands');
+
 /**
  * Helper to create a temp directory for testing.
  */
