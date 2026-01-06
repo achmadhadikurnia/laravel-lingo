@@ -14,6 +14,7 @@ class Lingo
      * Create a new LingoBuilder instance for chainable operations.
      *
      * @param  array<string, string>  $translations
+     * @param  string|null  $locale  Optional locale code for auto-save path
      *
      * @example
      * Lingo::make($translations)
@@ -21,9 +22,39 @@ class Lingo
      *     ->sortKeys()
      *     ->save('lang/id.json');
      */
-    public static function make(array $translations = []): LingoBuilder
+    public static function make(array $translations = [], ?string $locale = null): LingoBuilder
     {
-        return new LingoBuilder($translations);
+        return LingoBuilder::make($translations, $locale);
+    }
+
+    /**
+     * Load translations by locale code for chainable operations.
+     *
+     * Automatically resolves to lang_path('{locale}.json').
+     *
+     * @param  string  $locale  Locale code (e.g., 'id', 'en', 'fr')
+     *
+     * @example
+     * Lingo::locale('id')->sortKeys()->save();
+     * Lingo::locale('id')->stats();
+     */
+    public static function locale(string $locale): LingoBuilder
+    {
+        return LingoBuilder::locale($locale);
+    }
+
+    /**
+     * Load translations from a JSON file for chainable operations.
+     *
+     * @param  string  $filePath  Path to JSON file (relative to lang_path or absolute)
+     *
+     * @example
+     * Lingo::fromFile('id.json')->sortKeys()->save();
+     * Lingo::fromFile(lang_path('id.json'))->stats();
+     */
+    public static function fromFile(string $filePath): LingoBuilder
+    {
+        return LingoBuilder::load($filePath);
     }
 
     /**

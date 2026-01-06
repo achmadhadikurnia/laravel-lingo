@@ -19,7 +19,7 @@ class LingoSortCommand extends Command
      * @var string
      */
     public $signature = 'lingo:sort
-                        {locale : Locale code (e.g., id, en) or full path to JSON file}
+                        {locale? : Locale code (e.g., id, en) or full path to JSON file. Defaults to config(app.locale)}
                         {--desc : Sort in descending order (Z-A)}';
 
     /**

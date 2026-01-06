@@ -28,3 +28,22 @@ it('can chain methods from lingo helper', function () {
     expect($keys[0])->toBe('a');
     expect($keys[1])->toBe('z');
 });
+
+it('can pass locale to lingo helper for auto-save path', function () {
+    $langDir = lang_path();
+    if (! is_dir($langDir)) {
+        mkdir($langDir, 0777, true);
+    }
+
+    $filePath = lang_path('helper-locale-test.json');
+
+    $result = lingo(['Helper' => 'Test'], 'helper-locale-test')->save();
+
+    expect($result)->toBeTrue();
+    expect(file_exists($filePath))->toBeTrue();
+
+    $content = json_decode(file_get_contents($filePath), true);
+    expect($content)->toBe(['Helper' => 'Test']);
+
+    @unlink($filePath);
+});

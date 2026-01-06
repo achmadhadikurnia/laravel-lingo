@@ -72,6 +72,25 @@ describe('LingoCheckCommand', function () {
 
         cleanupTempDir($tempDir);
     });
+
+    it('uses app locale when locale argument is omitted', function () {
+        // Set app locale
+        config(['app.locale' => 'test']);
+
+        // Create lang directory and file
+        $langDir = lang_path();
+        if (! is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+
+        $filePath = lang_path('test.json');
+        file_put_contents($filePath, json_encode(['Hello' => 'Halo'], JSON_PRETTY_PRINT));
+
+        $this->artisan('lingo:check')
+            ->assertSuccessful();
+
+        @unlink($filePath);
+    });
 });
 
 describe('LingoStatsCommand', function () {
@@ -95,6 +114,23 @@ describe('LingoStatsCommand', function () {
             ->assertSuccessful();
 
         cleanupTempDir($tempDir);
+    });
+
+    it('uses app locale when locale argument is omitted', function () {
+        config(['app.locale' => 'stats-test']);
+
+        $langDir = lang_path();
+        if (! is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+
+        $filePath = lang_path('stats-test.json');
+        file_put_contents($filePath, json_encode(['Hello' => 'Halo'], JSON_PRETTY_PRINT));
+
+        $this->artisan('lingo:stats')
+            ->assertSuccessful();
+
+        @unlink($filePath);
     });
 });
 
@@ -125,6 +161,26 @@ describe('LingoSortCommand', function () {
         expect(array_keys($sorted)[0])->toBe('z');
 
         cleanupTempDir($tempDir);
+    });
+
+    it('uses app locale when locale argument is omitted', function () {
+        config(['app.locale' => 'sort-test']);
+
+        $langDir = lang_path();
+        if (! is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+
+        $filePath = lang_path('sort-test.json');
+        file_put_contents($filePath, json_encode(['z' => 'last', 'a' => 'first'], JSON_PRETTY_PRINT));
+
+        $this->artisan('lingo:sort')
+            ->assertSuccessful();
+
+        $sorted = json_decode(file_get_contents($filePath), true);
+        expect(array_keys($sorted)[0])->toBe('a');
+
+        @unlink($filePath);
     });
 });
 
@@ -199,6 +255,64 @@ describe('LingoSyncCommand', function () {
 
         $updated = json_decode(file_get_contents($filePath), true);
         expect($updated)->not->toHaveKey('NewKey');
+
+        cleanupTempDir($tempDir);
+    });
+
+    it('uses app locale when locale argument is omitted', function () {
+        config(['app.locale' => 'sync-test']);
+
+        $langDir = lang_path();
+        if (! is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+
+        $filePath = lang_path('sync-test.json');
+        file_put_contents($filePath, json_encode(['Hello' => 'Halo'], JSON_PRETTY_PRINT));
+
+        // Uses default views path which may be empty, but should succeed
+        $this->artisan('lingo:sync')
+            ->assertSuccessful();
+
+        @unlink($filePath);
+    });
+
+    it('fails gracefully with non-existent path', function () {
+        $tempDir = createTempTestDir();
+        $filePath = $tempDir.'/test.json';
+        file_put_contents($filePath, json_encode(['Hello' => 'Halo'], JSON_PRETTY_PRINT));
+
+        $this->artisan('lingo:sync', [
+            'locale' => $filePath,
+            '--path' => '/non/existent/directory',
+        ])->assertFailed();
+
+        cleanupTempDir($tempDir);
+    });
+
+    it('can use add and remove together', function () {
+        $tempDir = createTempTestDir();
+        $srcDir = $tempDir.'/src';
+        mkdir($srcDir, 0777, true);
+
+        $filePath = $tempDir.'/test.json';
+        file_put_contents($filePath, json_encode([
+            'Hello' => 'Halo',
+            'Unused' => 'Not Used',
+        ], JSON_PRETTY_PRINT));
+        file_put_contents($srcDir.'/test.php', "<?php echo __('Hello'); echo __('NewKey');");
+
+        $this->artisan('lingo:sync', [
+            'locale' => $filePath,
+            '--path' => $srcDir,
+            '--add' => true,
+            '--remove' => true,
+        ])->assertSuccessful();
+
+        $updated = json_decode(file_get_contents($filePath), true);
+        expect($updated)->toHaveKey('Hello');
+        expect($updated)->toHaveKey('NewKey');
+        expect($updated)->not->toHaveKey('Unused');
 
         cleanupTempDir($tempDir);
     });

@@ -19,7 +19,7 @@ class LingoCheckCommand extends Command
      * @var string
      */
     public $signature = 'lingo:check
-                        {locale : Locale code (e.g., id, en) or full path to JSON file}
+                        {locale? : Locale code (e.g., id, en) or full path to JSON file. Defaults to config(app.locale)}
                         {--fix : Automatically fix issues (remove duplicates)}';
 
     /**

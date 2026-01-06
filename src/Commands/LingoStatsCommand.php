@@ -19,7 +19,7 @@ class LingoStatsCommand extends Command
      * @var string
      */
     public $signature = 'lingo:stats
-                        {locale : Locale code (e.g., id, en) or full path to JSON file}
+                        {locale? : Locale code (e.g., id, en) or full path to JSON file. Defaults to config(app.locale)}
                         {--detailed : Show sample translated and untranslated items}';
 
     /**

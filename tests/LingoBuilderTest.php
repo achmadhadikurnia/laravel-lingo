@@ -54,7 +54,7 @@ describe('LingoBuilder chainable methods', function () {
     it('can add missing keys', function () {
         $builder = LingoBuilder::make(['Hello' => 'Halo']);
 
-        $result = $builder->addMissing(['Hello', 'World', 'Goodbye'])->get();
+        $result = $builder->add(['Hello', 'World', 'Goodbye'])->get();
 
         expect($result)->toHaveCount(3);
         expect($result['World'])->toBe('World');
@@ -68,7 +68,7 @@ describe('LingoBuilder chainable methods', function () {
             'Unused' => 'Tidak Dipakai',
         ]);
 
-        $result = $builder->removeUnused(['Hello', 'World'])->get();
+        $result = $builder->remove(['Hello', 'World'])->get();
 
         expect($result)->toHaveCount(2);
         expect($result)->not->toHaveKey('Unused');
@@ -206,12 +206,6 @@ describe('LingoBuilder chainable methods', function () {
         @rmdir($tempDir);
     });
 
-    it('throws exception when saving without path and locale', function () {
-        $builder = LingoBuilder::make(['Hello' => 'Halo']);
-
-        expect(fn () => $builder->save())->toThrow(\InvalidArgumentException::class);
-    });
-
     it('can chain multiple operations', function () {
         $builder = LingoBuilder::make([
             'z' => 'z',
@@ -220,7 +214,7 @@ describe('LingoBuilder chainable methods', function () {
         ]);
 
         $result = $builder
-            ->addMissing(['new'])
+            ->add(['new'])
             ->removeEmpty()
             ->sortKeys()
             ->get();
@@ -247,5 +241,129 @@ describe('LingoBuilder chainable methods', function () {
 
         expect($stats['total'])->toBe(0);
         expect($stats['percentage'])->toBe(0);
+    });
+
+    it('can load by locale using Lingo::locale', function () {
+        $langDir = lang_path();
+        if (! is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+
+        $filePath = lang_path('test-locale.json');
+        file_put_contents($filePath, json_encode(['Hello' => 'Halo'], JSON_PRETTY_PRINT));
+
+        $builder = Lingo::locale('test-locale');
+
+        expect($builder)->toBeInstanceOf(LingoBuilder::class);
+        expect($builder->get())->toBe(['Hello' => 'Halo']);
+
+        @unlink($filePath);
+    });
+
+    it('can load from file using Lingo::fromFile', function () {
+        $tempDir = sys_get_temp_dir().'/lingo-fromfile-'.getmypid();
+        if (! is_dir($tempDir)) {
+            mkdir($tempDir, 0777, true);
+        }
+
+        $filePath = $tempDir.'/test.json';
+        file_put_contents($filePath, json_encode(['World' => 'Dunia'], JSON_PRETTY_PRINT));
+
+        $builder = Lingo::fromFile($filePath);
+
+        expect($builder)->toBeInstanceOf(LingoBuilder::class);
+        expect($builder->get())->toBe(['World' => 'Dunia']);
+
+        @unlink($filePath);
+        @rmdir($tempDir);
+    });
+
+    it('can set target locale using to method', function () {
+        $langDir = lang_path();
+        if (! is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+
+        $filePath = lang_path('to-test.json');
+
+        $builder = LingoBuilder::make(['Test' => 'Tes']);
+        $result = $builder->to('to-test')->save();
+
+        expect($result)->toBeTrue();
+        expect(file_exists($filePath))->toBeTrue();
+
+        $content = json_decode(file_get_contents($filePath), true);
+        expect($content)->toBe(['Test' => 'Tes']);
+
+        @unlink($filePath);
+    });
+
+    it('can sync with default views path', function () {
+        $builder = LingoBuilder::make(['Existing' => 'Ada']);
+
+        // sync() with null uses resource_path('views') as default
+        // This test just ensures the method runs without error
+        $result = $builder->sync();
+
+        expect($result)->toBeInstanceOf(LingoBuilder::class);
+    });
+
+    it('can sync with single path string', function () {
+        $tempDir = sys_get_temp_dir().'/lingo-sync-single-'.getmypid();
+        mkdir($tempDir, 0777, true);
+
+        file_put_contents($tempDir.'/test.php', "<?php echo __('NewKey');");
+
+        $builder = LingoBuilder::make(['Existing' => 'Ada']);
+        $result = $builder->sync($tempDir)->get();
+
+        expect($result)->toHaveKey('NewKey');
+        expect($result)->not->toHaveKey('Existing'); // removed as unused
+
+        @unlink($tempDir.'/test.php');
+        @rmdir($tempDir);
+    });
+
+    it('can sync with array of paths', function () {
+        $tempDir1 = sys_get_temp_dir().'/lingo-sync-arr1-'.getmypid();
+        $tempDir2 = sys_get_temp_dir().'/lingo-sync-arr2-'.getmypid();
+        mkdir($tempDir1, 0777, true);
+        mkdir($tempDir2, 0777, true);
+
+        file_put_contents($tempDir1.'/file1.php', "<?php echo __('Key1');");
+        file_put_contents($tempDir2.'/file2.php', "<?php echo __('Key2');");
+
+        $builder = LingoBuilder::make([]);
+        $result = $builder->sync([$tempDir1, $tempDir2])->get();
+
+        expect($result)->toHaveKey('Key1');
+        expect($result)->toHaveKey('Key2');
+
+        @unlink($tempDir1.'/file1.php');
+        @unlink($tempDir2.'/file2.php');
+        @rmdir($tempDir1);
+        @rmdir($tempDir2);
+    });
+
+    it('can load from relative path using LingoBuilder::load', function () {
+        $langDir = lang_path();
+        if (! is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+
+        file_put_contents(lang_path('relative-test.json'), json_encode(['Rel' => 'Tive'], JSON_PRETTY_PRINT));
+
+        $builder = LingoBuilder::load('relative-test.json');
+
+        expect($builder->get())->toBe(['Rel' => 'Tive']);
+
+        @unlink(lang_path('relative-test.json'));
+    });
+
+    it('handles locale that creates empty builder when file not exists', function () {
+        $builder = Lingo::locale('non-existent-locale-xyz');
+
+        expect($builder)->toBeInstanceOf(LingoBuilder::class);
+        expect($builder->isEmpty())->toBeTrue();
     });
 });

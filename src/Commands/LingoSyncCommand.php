@@ -19,7 +19,7 @@ class LingoSyncCommand extends Command
      * @var string
      */
     public $signature = 'lingo:sync
-                        {locale : Locale code (e.g., id, en) or full path to JSON file}
+                        {locale? : Locale code (e.g., id, en) or full path to JSON file. Defaults to config(app.locale)}
                         {--path=resources/views : Directory to scan for translation keys}
                         {--add : Add missing keys to translation file}
                         {--remove : Remove unused keys from translation file}

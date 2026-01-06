@@ -8,89 +8,106 @@ namespace Kanekescom\Lingo;
  * Provides a chainable API for working with translation arrays.
  *
  * @example
- * Lingo::make($translations)
- *     ->addMissing($keys)
- *     ->sortKeys()
- *     ->clean()
- *     ->save('lang/id.json');
+ * Lingo::load('id.json')->sortKeys()->save();
+ * Lingo::make($translations)->clean()->save('output.json');
  */
 class LingoBuilder
 {
     /**
-     * The translation array being manipulated.
-     *
      * @var array<string, string>
      */
-    protected array $translations;
+    protected array $translations = [];
 
     /**
-     * The locale code for auto-save functionality.
+     * @var string|null File path for save operations
      */
-    protected ?string $locale = null;
+    protected ?string $filePath = null;
 
     /**
      * Create a new LingoBuilder instance.
      *
      * @param  array<string, string>  $translations
      */
-    public function __construct(array $translations = [], ?string $locale = null)
+    public function __construct(array $translations = [], ?string $filePath = null)
     {
         $this->translations = $translations;
-        $this->locale = $locale;
+        $this->filePath = $filePath;
     }
 
     /**
      * Create a new LingoBuilder instance (static factory).
      *
      * @param  array<string, string>  $translations
+     * @param  string|null  $locale  Optional locale code for auto-save path
      * @return static
      */
-    public static function make(array $translations = []): self
+    public static function make(array $translations = [], ?string $locale = null): self
     {
-        return new self($translations);
+        $filePath = $locale ? lang_path("{$locale}.json") : null;
+
+        return new self($translations, $filePath);
     }
 
     /**
-     * Set locale and load translations (instance method).
-     *
-     * Allows chaining from lingo() helper: lingo()->setLocale('id')
+     * Set the target locale for save operations.
      *
      * @param  string  $locale  Locale code (e.g., 'id', 'en')
      * @return $this
+     *
+     * @example
+     * lingo(['Hello' => 'Halo'])->to('id')->save();
      */
-    public function setLocale(string $locale): static
+    public function to(string $locale): static
     {
-        $filePath = lang_path("{$locale}.json");
-        $this->locale = $locale;
-
-        if (file_exists($filePath)) {
-            $content = file_get_contents($filePath);
-            $this->translations = json_decode($content, true) ?? [];
-        }
+        $this->filePath = lang_path("{$locale}.json");
 
         return $this;
     }
 
     /**
-     * Re-read file and remove duplicate keys.
+     * Load translations by locale code.
      *
-     * Only works when locale is set via setLocale().
-     * Keeps the last occurrence of duplicate keys.
+     * Automatically resolves to lang_path('{locale}.json').
      *
-     * @return $this
+     * @param  string  $locale  Locale code (e.g., 'id', 'en', 'fr')
+     * @return static
+     *
+     * @example
+     * LingoBuilder::locale('id')->sortKeys()->save();
      */
-    public function removeDuplicates(): static
+    public static function locale(string $locale): self
     {
-        if ($this->locale !== null) {
-            $filePath = lang_path("{$this->locale}.json");
+        $filePath = lang_path("{$locale}.json");
 
-            if (file_exists($filePath)) {
-                $content = file_get_contents($filePath);
-                $this->translations = Lingo::removeDuplicates($content);
-            }
+        $translations = [];
+        if (file_exists($filePath)) {
+            $content = file_get_contents($filePath);
+            $translations = json_decode($content, true) ?? [];
         }
 
-        return $this;
+        return new self($translations, $filePath);
+    }
+
+    /**
+     * Load translations from a JSON file.
+     *
+     * @param  string  $filePath  Path to JSON file (relative to lang_path or absolute)
+     * @return static
+     */
+    public static function load(string $filePath): self
+    {
+        // If not absolute path, assume it's relative to lang_path
+        if (! str_starts_with($filePath, '/') && ! preg_match('/^[A-Za-z]:/', $filePath)) {
+            $filePath = lang_path($filePath);
+        }
+
+        $translations = [];
+        if (file_exists($filePath)) {
+            $content = file_get_contents($filePath);
+            $translations = json_decode($content, true) ?? [];
+        }
+
+        return new self($translations, $filePath);
     }
 
     /**
@@ -119,14 +136,14 @@ class LingoBuilder
     }
 
     /**
-     * Add missing keys to translation array.
+     * Add keys to translation array.
      *
-     * Missing keys are added with the key as the value (untranslated).
+     * Keys not already present are added with the key as the value (untranslated).
      *
-     * @param  array<string>  $keys  Keys to add if missing
+     * @param  array<string>  $keys  Keys to add if not present
      * @return $this
      */
-    public function addMissing(array $keys): static
+    public function add(array $keys): static
     {
         $this->translations = Lingo::addMissing($this->translations, $keys);
 
@@ -134,69 +151,58 @@ class LingoBuilder
     }
 
     /**
-     * Remove unused keys from translation array.
+     * Remove keys from translation array.
      *
-     * Removes keys that are not found in the provided used keys list.
+     * Keeps only keys that are in the provided list.
      *
-     * @param  array<string>  $usedKeys  Keys found in source files
+     * @param  array<string>  $keysToKeep  Keys to keep
      * @return $this
      */
-    public function removeUnused(array $usedKeys): static
+    public function remove(array $keysToKeep): static
     {
-        $this->translations = Lingo::removeUnused($this->translations, $usedKeys);
+        $this->translations = Lingo::removeUnused($this->translations, $keysToKeep);
 
         return $this;
     }
 
     /**
-     * Sync translations with source files in a directory.
+     * Sync translations with source files.
      *
-     * Scans the directory, adds missing keys, and removes unused keys in one step.
-     * If no path provided, defaults to resource_path('views').
+     * Scans for translation keys in source files, adds missing keys,
+     * and removes unused keys in one step.
      *
-     * @param  string|null  $scanPath  Directory to scan (default: 'resources/views')
+     * @param  string|array<string>|null  $paths  Directory or directories to scan (default: resource_path('views'))
      * @return $this
+     *
+     * @example
+     * Lingo::locale('id')->sync()->save();                        // Sync with views
+     * Lingo::locale('id')->sync('app/Filament')->save();          // Sync with one folder
+     * Lingo::locale('id')->sync(['resources/views', 'app'])->save(); // Sync with multiple
      */
-    public function syncWith(?string $scanPath = null): static
+    public function sync(string|array|null $paths = null): static
     {
-        $path = $scanPath ?? resource_path('views');
-        $usedKeys = Lingo::scanDirectory($path);
+        // Handle default
+        if ($paths === null) {
+            $paths = [resource_path('views')];
+        }
 
-        return $this
-            ->addMissing($usedKeys)
-            ->removeUnused($usedKeys);
-    }
+        // Normalize to array
+        if (is_string($paths)) {
+            $paths = [$paths];
+        }
 
-    /**
-     * Scan views and add missing translation keys.
-     *
-     * Shorthand for scanning and adding missing keys without removing unused.
-     *
-     * @param  string|null  $scanPath  Directory to scan (default: 'resources/views')
-     * @return $this
-     */
-    public function scanAndAdd(?string $scanPath = null): static
-    {
-        $path = $scanPath ?? resource_path('views');
-        $usedKeys = Lingo::scanDirectory($path);
+        // Collect all keys from all paths
+        $allKeys = [];
+        foreach ($paths as $path) {
+            $keys = Lingo::scanDirectory($path);
+            $allKeys = array_merge($allKeys, $keys);
+        }
+        $allKeys = array_unique($allKeys);
 
-        return $this->addMissing($usedKeys);
-    }
+        $this->translations = Lingo::addMissing($this->translations, $allKeys);
+        $this->translations = Lingo::removeUnused($this->translations, $allKeys);
 
-    /**
-     * Scan views and remove unused translation keys.
-     *
-     * Shorthand for scanning and removing unused keys without adding missing.
-     *
-     * @param  string|null  $scanPath  Directory to scan (default: 'resources/views')
-     * @return $this
-     */
-    public function scanAndRemove(?string $scanPath = null): static
-    {
-        $path = $scanPath ?? resource_path('views');
-        $usedKeys = Lingo::scanDirectory($path);
-
-        return $this->removeUnused($usedKeys);
+        return $this;
     }
 
     /**
@@ -279,24 +285,23 @@ class LingoBuilder
     /**
      * Save translation array to JSON file.
      *
-     * If no path is provided and locale is set, saves to lang/{locale}.json
+     * If no path is provided, uses the path from load() or locale().
+     * Falls back to app's current locale if no path is set.
      *
-     * @param  string|null  $filePath  Path to save JSON file (optional if locale is set)
+     * @param  string|null  $filePath  Path to save JSON file (optional)
      * @param  bool  $sort  Whether to sort keys before saving
      * @return bool True if saved successfully
-     *
-     * @throws \InvalidArgumentException If no path provided and locale is not set
      */
     public function save(?string $filePath = null, bool $sort = true): bool
     {
-        if ($filePath === null) {
-            if ($this->locale === null) {
-                throw new \InvalidArgumentException('No file path provided. Either pass a path or use setLocale().');
-            }
-            $filePath = lang_path("{$this->locale}.json");
+        $path = $filePath ?? $this->filePath;
+
+        // Fallback to app's current locale
+        if ($path === null) {
+            $path = lang_path(app()->getLocale().'.json');
         }
 
-        return Lingo::save($filePath, $this->translations, $sort);
+        return Lingo::save($path, $this->translations, $sort);
     }
 
     /**
@@ -326,7 +331,7 @@ class LingoBuilder
      */
     public function toArray(): array
     {
-        return $this->get();
+        return $this->translations;
     }
 
     /**
@@ -360,6 +365,6 @@ class LingoBuilder
      */
     public function isNotEmpty(): bool
     {
-        return ! $this->isEmpty();
+        return ! empty($this->translations);
     }
 }

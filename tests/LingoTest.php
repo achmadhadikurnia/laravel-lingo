@@ -252,4 +252,56 @@ describe('Lingo static methods', function () {
 
         expect($keys)->toBe([]);
     });
+
+    it('returns null when loading invalid JSON file', function () {
+        $tempDir = sys_get_temp_dir().'/lingo-invalid-'.getmypid();
+        if (! is_dir($tempDir)) {
+            mkdir($tempDir, 0777, true);
+        }
+
+        $filePath = $tempDir.'/invalid.json';
+        file_put_contents($filePath, 'not valid json {{{');
+
+        $result = Lingo::load($filePath);
+
+        expect($result)->toBeNull();
+
+        @unlink($filePath);
+        @rmdir($tempDir);
+    });
+
+    it('handles unicode characters in translations', function () {
+        $translations = [
+            'Hello' => 'Halo',
+            '日本語' => '日本語翻訳',
+            'Emoji 🎉' => 'Emoji translated 🎊',
+        ];
+
+        $json = Lingo::toJson($translations, false); // Don't sort keys
+        $decoded = json_decode($json, true);
+
+        expect($decoded)->toBe($translations);
+        expect($decoded['日本語'])->toBe('日本語翻訳');
+        expect($decoded['Emoji 🎉'])->toBe('Emoji translated 🎊');
+    });
+
+    it('handles empty translations in stats correctly', function () {
+        $stats = Lingo::stats([]);
+
+        expect($stats['total'])->toBe(0);
+        expect($stats['translated'])->toBe(0);
+        expect($stats['untranslated'])->toBe(0);
+        expect($stats['percentage'])->toBe(0);
+    });
+
+    it('handles 100 percent translated stats', function () {
+        $translations = [
+            'Hello' => 'Halo',
+            'World' => 'Dunia',
+        ];
+
+        $stats = Lingo::stats($translations);
+
+        expect($stats['percentage'])->toBe(100.0);
+    });
 });

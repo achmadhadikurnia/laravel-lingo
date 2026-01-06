@@ -9,26 +9,23 @@ use Kanekescom\Lingo\LingoBuilder;
 |--------------------------------------------------------------------------
 |
 | These functions are wrappers around the Lingo class for convenience.
-| For more features, use Kanekescom\Lingo\Lingo directly.
 |
 */
 
 if (! function_exists('lingo')) {
     /**
-     * Create a new LingoBuilder instance for chainable operations.
-     *
-     * Similar to Laravel's collect() helper, this provides a chainable
-     * interface for working with translation arrays.
+     * Create a new Lingo builder instance for chainable operations.
      *
      * @param  array<string, string>  $translations
+     * @param  string|null  $locale  Optional locale for auto-save path
      *
      * @example
-     * lingo()->setLocale('id')->syncWith()->save();
-     * lingo()->setLocale('id')->stats();
-     * lingo(['Hello' => 'Halo'])->sortKeys()->toJson();
+     * lingo(['Hello' => 'Halo'], 'id')->sortKeys()->save();
+     * lingo(['Hello' => 'Halo'])->to('id')->save();
+     * lingo($translations)->clean()->toJson();
      */
-    function lingo(array $translations = []): LingoBuilder
+    function lingo(array $translations = [], ?string $locale = null): LingoBuilder
     {
-        return Lingo::make($translations);
+        return Lingo::make($translations, $locale);
     }
 }

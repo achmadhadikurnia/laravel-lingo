@@ -39,8 +39,9 @@ trait ResolvesTranslationFile
      *
      * @return array{file: string, content: string, translations: array}|null
      */
-    protected function loadTranslationFile(string $locale): ?array
+    protected function loadTranslationFile(?string $locale): ?array
     {
+        $locale = $locale ?? config('app.locale');
         $file = $this->resolveFilePath($locale);
 
         if (! file_exists($file)) {
