@@ -1,5 +1,13 @@
 # Release Notes
 
+## v1.0.2 - 2026-01-06
+
+### What's Changed
+
+* feat: add multiple paths support for lingo:sync command by @achmadhadikurnia in https://github.com/kanekescom/laravel-lingo/pull/6
+
+**Full Changelog**: https://github.com/kanekescom/laravel-lingo/compare/v1.0.1...v1.0.2
+
 ## v1.0.1 - 2026-01-06
 
 ### What's Changed
