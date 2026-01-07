@@ -1,5 +1,13 @@
 # Release Notes
 
+## v1.0.4 - 2026-01-07
+
+### What's Changed
+
+* feat: support relative paths and file scanning in sync() by @achmadhadikurnia in https://github.com/kanekescom/laravel-lingo/pull/8
+
+**Full Changelog**: https://github.com/kanekescom/laravel-lingo/compare/v1.0.3...v1.0.4
+
 ## v1.0.3 - 2026-01-06
 
 ### What's Changed
