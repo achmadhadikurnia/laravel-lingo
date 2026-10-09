@@ -46,7 +46,7 @@ class LingoCheckCommand extends Command
         $hasIssues = false;
 
         // Check duplicates
-        $hasIssues = $this->checkDuplicates($data['content']) || $hasIssues;
+        $hasIssues = $this->checkDuplicates($data['content']);
 
         // Check untranslated
         $hasIssues = $this->checkUntranslated($data['translations']) || $hasIssues;
