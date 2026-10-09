@@ -39,7 +39,6 @@ class LingoBuilder
      *
      * @param  array<string, string>  $translations
      * @param  string|null  $locale  Optional locale code for auto-save path
-     * @return static
      */
     public static function make(array $translations = [], ?string $locale = null): self
     {
@@ -70,7 +69,6 @@ class LingoBuilder
      * Automatically resolves to lang_path('{locale}.json').
      *
      * @param  string  $locale  Locale code (e.g., 'id', 'en', 'fr')
-     * @return static
      *
      * @example
      * LingoBuilder::locale('id')->sortKeys()->save();
@@ -92,7 +90,6 @@ class LingoBuilder
      * Load translations from a JSON file.
      *
      * @param  string  $filePath  Path to JSON file (relative to lang_path or absolute)
-     * @return static
      */
     public static function load(string $filePath): self
     {
