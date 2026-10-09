@@ -1,5 +1,17 @@
 # Release Notes
 
+## v1.0.8 - 2026-10-09
+
+### What's Changed
+
+* chore(deps): bump dependabot/fetch-metadata from 2.5.0 to 3.0.0 by @dependabot[bot] in https://github.com/kanekescom/laravel-lingo/pull/15
+* chore(deps): bump ramsey/composer-install from 3 to 4 by @dependabot[bot] in https://github.com/kanekescom/laravel-lingo/pull/14
+* chore(deps): bump dependabot/fetch-metadata from 3.0.0 to 3.1.0 by @dependabot[bot] in https://github.com/kanekescom/laravel-lingo/pull/16
+* chore(deps): bump actions/checkout from 5 to 7 by @dependabot[bot] in https://github.com/kanekescom/laravel-lingo/pull/17
+* feat: add support for Laravel 13 by @achmadhadikurnia in https://github.com/kanekescom/laravel-lingo/pull/18
+
+**Full Changelog**: https://github.com/kanekescom/laravel-lingo/compare/v1.0.7...v1.0.8
+
 ## v1.0.7 - 2026-03-04
 
 ### What's Changed
